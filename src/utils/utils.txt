@@ -1,0 +1,1 @@
+Pasta com funções utilitarias que podem ser utilizadas em varios lugares (conversoes de data, etc...)
