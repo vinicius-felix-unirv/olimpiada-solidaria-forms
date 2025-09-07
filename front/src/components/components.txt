@@ -1,0 +1,1 @@
+Definição de todos os componentes da tela (Buttons, TextAreas, Inputs, etc..)
