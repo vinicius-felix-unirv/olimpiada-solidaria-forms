@@ -82,3 +82,17 @@ export const FORM_FIELDS = {
 } as const;
 
 export type FormField = typeof FORM_FIELDS[keyof typeof FORM_FIELDS];
+
+//FORMULÁRIO DE LOGIN 
+
+export interface LoginForm {
+  email: string;
+  senha: string;
+}
+
+export const LOGIN_FORM_FIELDS = {
+  EMAIL: 'email',
+  SENHA: 'senha',
+} as const;
+
+export type LoginFormFields = typeof LOGIN_FORM_FIELDS[keyof typeof LOGIN_FORM_FIELDS];
