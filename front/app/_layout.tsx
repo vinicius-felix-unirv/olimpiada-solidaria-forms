@@ -11,7 +11,7 @@ export default function RootLayout() {
           name="index" 
           options={{ 
             title: 'Olimpíada Solidária',
-            headerShown: false // Remove o header completamente da tela inicial
+            headerShown: false 
           }} 
         />
         <Stack.Screen 
@@ -21,6 +21,13 @@ export default function RootLayout() {
             headerShown: true,
             headerBackTitle: 'Voltar'
           }} 
+        />
+        <Stack.Screen
+          name="recuperar-senha"
+          options={{
+            title: 'Recuperar Senha',
+            headerShown: false,
+          }}
         />
       </Stack>
     </>

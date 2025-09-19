@@ -1,12 +1,8 @@
-// Arquivo: app/index.tsx (Versão Final com "Lembrar-me")
-
-import React, { useState, useEffect } from 'react'; // Adicionado useEffect
+import React, { useState, useEffect } from 'react';
 import { ScrollView, View, Text, TouchableOpacity, Alert, Image } from 'react-native';
 import { Link } from 'expo-router';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-// 1. Importar o AsyncStorage
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import { Input, Button, Checkbox } from '../src/components';
 import { validateEmail, validateLoginPassword } from '../src/utils/validators';
 import { LoginForm, ValidationErrors } from '../src/types';
@@ -16,7 +12,7 @@ const MOCK_LOGIN_DATA: LoginForm = {
   email: 'teste@email.com',
   senha: 'teste123',
 };
-const REMEMBERED_EMAIL_KEY = 'remembered-email'; // Chave para salvar o email
+const REMEMBERED_EMAIL_KEY = 'remembered-email';
 
 export default function LoginScreen() {
   const [formData, setFormData] = useState<LoginForm>({ email: '', senha: '' });
@@ -27,22 +23,20 @@ export default function LoginScreen() {
   const [devMode, setDevMode] = useState(false);
   const [logoClickCount, setLogoClickCount] = useState(0);
 
-  // 2. useEffect para carregar o e-mail salvo quando a tela abrir
   useEffect(() => {
     const loadRememberedEmail = async () => {
       try {
         const savedEmail = await AsyncStorage.getItem(REMEMBERED_EMAIL_KEY);
         if (savedEmail !== null) {
           setFormData(prev => ({ ...prev, email: savedEmail }));
-          setRememberMe(true); // Marca o checkbox se encontrou um e-mail
+          setRememberMe(true);
         }
       } catch (e) {
         console.error('Falha ao carregar o e-mail salvo.', e);
       }
     };
-
     loadRememberedEmail();
-  }, []); // O array vazio [] garante que isso rode apenas uma vez
+  }, []);
 
   const handleInputChange = (field: keyof LoginForm, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -69,19 +63,13 @@ export default function LoginScreen() {
     if (!isFormValid) return;
     setIsSubmitting(true);
     try {
-      console.log('Tentativa de login com:', sanitizeForLog(formData));
       const response = await mockApiCall(formData);
-
       if (response.success) {
-        // 3. Lógica para salvar ou remover o e-mail após o login
         if (rememberMe) {
           await AsyncStorage.setItem(REMEMBERED_EMAIL_KEY, formData.email);
-          console.log('E-mail salvo com sucesso!');
         } else {
           await AsyncStorage.removeItem(REMEMBERED_EMAIL_KEY);
-          console.log('E-mail salvo removido.');
         }
-        
         Alert.alert('Login bem-sucedido!', 'Você será redirecionado para a tela principal.');
       } else {
         Alert.alert('Falha no login', response.message || 'Credenciais inválidas. Tente novamente.');
@@ -177,9 +165,11 @@ export default function LoginScreen() {
                 <Checkbox checked={rememberMe} onPress={() => setRememberMe(!rememberMe)}>
                   <Text className="text-text-gray">Lembrar-me</Text>
                 </Checkbox>
-                <TouchableOpacity>
-                  <Text className="text-button-blue font-medium">Esqueceu a senha?</Text>
-                </TouchableOpacity>
+                <Link href="/recuperar-senha" asChild>
+                  <TouchableOpacity>
+                    <Text className="text-button-blue font-medium">Esqueceu a senha?</Text>
+                  </TouchableOpacity>
+                </Link>
               </View>
 
               <Button
