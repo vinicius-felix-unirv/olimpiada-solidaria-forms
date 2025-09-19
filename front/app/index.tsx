@@ -1,4 +1,4 @@
-// Arquivo: app/index.tsx (Versão Final com Header e Dev Mode)
+// Arquivo: app/index.tsx (Com a nova validação de senha)
 
 import React, { useState } from 'react';
 import { ScrollView, View, Text, TouchableOpacity, Alert, Image } from 'react-native';
@@ -6,29 +6,25 @@ import { Link } from 'expo-router';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 import { Input, Button, Checkbox } from '../src/components';
-import { validateEmail, validatePassword } from '../src/utils/validators';
+// ATUALIZADO: Importando a nova função de validação
+import { validateEmail, validateLoginPassword } from '../src/utils/validators';
 import { LoginForm, ValidationErrors } from '../src/types';
 import { mockApiCall, sanitizeForLog } from '../src/utils/apiHelpers';
 
-// Dados de teste para o login
 const MOCK_LOGIN_DATA: LoginForm = {
   email: 'teste@email.com',
   senha: 'teste123',
 };
 
 export default function LoginScreen() {
-  // --- ESTADOS ---
   const [formData, setFormData] = useState<LoginForm>({ email: '', senha: '' });
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // --- DEV MODE ---
   const [devMode, setDevMode] = useState(false);
   const [logoClickCount, setLogoClickCount] = useState(0);
 
-  // --- HANDLERS ---
   const handleInputChange = (field: keyof LoginForm, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (validationErrors[field]) {
@@ -42,8 +38,13 @@ export default function LoginScreen() {
     const value = formData[field];
     let result: { ok: boolean; reason?: string } = { ok: true };
 
-    if (field === 'email') result = validateEmail(value);
-    if (field === 'senha') result = validatePassword(value);
+    if (field === 'email') {
+      result = validateEmail(value);
+    } 
+    // ATUALIZADO: Usando a nova função para validar a senha de login
+    else if (field === 'senha') {
+      result = validateLoginPassword(value);
+    }
 
     if (!result.ok) {
       setValidationErrors(prev => ({ ...prev, [field]: result.reason || 'Campo inválido' }));
@@ -68,7 +69,6 @@ export default function LoginScreen() {
     }
   };
 
-  // Lógica para o Dev Mode (igual à da tela de cadastro)
   const handleLogoClick = () => {
     const newCount = logoClickCount + 1;
     setLogoClickCount(newCount);
@@ -92,27 +92,13 @@ export default function LoginScreen() {
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
         <View className="flex-1 justify-between">
           <View>
-            {/* INÍCIO DO NOVO HEADER COM LOGOS */}
             <View className="bg-white h-18 flex-row items-center justify-between px-4 pt-4">
-              <Image
-                source={require('../public/assets/Logo UniRV_Prancheta 1 cópia 2 1.png')}
-                className="w-24 h-12"
-                resizeMode="contain"
-              />
-              <Image
-                source={require('../public/assets/logo Medicina-02 1.png')}
-                className="w-18 h-9"
-                resizeMode="contain"
-              />
+              <Image source={require('../public/assets/Logo UniRV_Prancheta 1 cópia 2 1.png')} className="w-24 h-12" resizeMode="contain" />
+              <Image source={require('../public/assets/logo Medicina-02 1.png')} className="w-18 h-9" resizeMode="contain" />
               <TouchableOpacity onPress={handleLogoClick}>
-                <Image
-                  source={require('../public/assets/Fasoft Aprovada-01 1.png')}
-                  className="w-18 h-8"
-                  resizeMode="contain"
-                />
+                <Image source={require('../public/assets/Fasoft Aprovada-01 1.png')} className="w-18 h-8" resizeMode="contain" />
               </TouchableOpacity>
             </View>
-            {/* FIM DO NOVO HEADER COM LOGOS */}
 
             <View className="bg-primary-blue h-35 flex-row items-center justify-center px-8">
               <View className="w-15 h-15 rounded-full items-center justify-center mr-5 bg-icon-circle-bg">
@@ -126,7 +112,6 @@ export default function LoginScreen() {
               </View>
             </View>
 
-            {/* BOTÃO DE DEV MODE (só aparece se ativo) */}
             {devMode && (
               <TouchableOpacity onPress={fillWithTestData} className="bg-yellow-200 p-2 items-center">
                 <Text className="font-bold text-yellow-800">🔧 [DEV] Preencher com dados de teste</Text>

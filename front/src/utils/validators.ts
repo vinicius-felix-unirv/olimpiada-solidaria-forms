@@ -279,3 +279,15 @@ export function sanitizeString(input: string): string {
     .replace(/[<>]/g, ''); // Remove caracteres básicos de XSS
 }
 
+/**
+ * Valida a senha na tela de login (apenas verifica se não está vazia)
+ * @param password - Senha a ser validada
+ * @returns Objeto com resultado da validação
+ */
+export function validateLoginPassword(password: string): PasswordValidationResult {
+  if (!password || password.trim() === '') {
+    return { ok: false, reason: 'Senha é obrigatória' };
+  }
+
+  return { ok: true };
+}
