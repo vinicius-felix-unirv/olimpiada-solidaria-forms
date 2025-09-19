@@ -1,3 +1,5 @@
+// Arquivo: front/src/components/Checkbox.tsx (Versão Corrigida)
+
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { cn } from '../lib/utils';
@@ -13,24 +15,25 @@ export function Checkbox({ checked, onPress, children, className }: CheckboxProp
   return (
     <TouchableOpacity 
       onPress={onPress}
-      className={cn("flex-row items-start mb-4", className)}
+      className={cn("flex-row items-center", className)} // Removido items-start e mb-4 para mais flexibilidade
     >
-      {/* Checkbox */}
-      <View className={cn(
-        "w-4 h-4 border border-primary-300 bg-white rounded-sm mr-3 mt-0.5",
-        "items-center justify-center",
-        checked && "bg-primary-300"
-      )}>
+      {/* Caixa do Checkbox */}
+      <View 
+        className={cn(
+          "w-5 h-5 border rounded items-center justify-center mr-2",
+          // CORREÇÃO: Usando a cor 'element-blue' definida no tailwind.config.js
+          checked ? "bg-element-blue border-element-blue" : "bg-white border-text-gray"
+        )}
+      >
         {checked && (
-          <Text className="text-white text-xs">✓</Text>
+          <Text className="text-white text-xs font-bold">✓</Text>
         )}
       </View>
       
-      {/* Label */}
+      {/* Label (Texto) */}
       <View className="flex-1">
         {children}
       </View>
     </TouchableOpacity>
   );
 }
-
