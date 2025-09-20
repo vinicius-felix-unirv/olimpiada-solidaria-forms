@@ -1,0 +1,14 @@
+// tsconfig.json
+{
+  "compilerOptions": {
+    "target": "es2016", // Versão do JavaScript que será gerada
+    "module": "commonjs", // Sistema de módulos
+    "rootDir": "./src", // Onde estão seus arquivos .ts
+    "outDir": "./dist", // Onde o JavaScript compilado será salvo
+    "esModuleInterop": true, // Permite compatibilidade entre CommonJS e ES Modules
+    "forceConsistentCasingInFileNames": true,
+    "strict": true, // Habilita todas as checagens estritas de tipo
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*"] // Quais arquivos o TS deve compilar
+}
