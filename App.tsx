@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -18,82 +18,137 @@ import CheckboxQuestion from './components/CheckboxQuestion';
 import SelectQuestion from './components/SelectQuestion';
 
 // Importando os tipos
-import { FormConfig, FormData } from './types/QuestionTypes';
+import { FormConfig, FormData, Question } from './types/QuestionTypes';
 
 export default function MedicalForm() {
-  // Configuração do formulário
-  const formConfig: FormConfig = {
-    title: 'Formulário Médico',
-    questions: [
-      {
-        id: 'name',
-        type: 'text',
-        label: 'Nome completo',
-        placeholder: 'Digite seu nome completo',
-        required: true
-      },
-      {
-        id: 'bloodType',
-        type: 'radio',
-        label: 'Tipo sanguíneo',
-        required: true,
-        options: [
-          { value: 'A+', label: 'A+' },
-          { value: 'A-', label: 'A-' },
-          { value: 'B+', label: 'B+' },
-          { value: 'B-', label: 'B-' },
-          { value: 'AB+', label: 'AB+' },
-          { value: 'AB-', label: 'AB-' },
-          { value: 'O+', label: 'O+' },
-          { value: 'O-', label: 'O-' }
+  // Estado para configuração do formulário (será recebida do backend)
+  const [formConfig, setFormConfig] = useState<FormConfig>({
+    title: 'Carregando...',
+    questions: []
+  });
+
+  // Estado do formulário dinâmico
+  const [formData, setFormData] = useState<FormData>({});
+
+  // Estado de carregamento
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Simulação de dados que virão do backend
+  // Esta função será substituída pela chamada real ao backend
+  const loadFormConfiguration = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Simulando delay de rede
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Dados de exemplo que virão do backend
+      const mockFormConfig: FormConfig = {
+        title: 'Título do Formulário',
+        questions: [
+          {
+            id: 'question1',
+            type: 'text',
+            label: 'Título da Pergunta',
+            placeholder: 'Digite sua resposta aqui',
+            required: true
+          },
+          {
+            id: 'question2',
+            type: 'radio',
+            label: 'Título da Pergunta',
+            required: true,
+            options: [
+              { value: 'opcao1', label: 'Opção 1' },
+              { value: 'opcao2', label: 'Opção 2' },
+              { value: 'opcao3', label: 'Opção 3' },
+              { value: 'opcao4', label: 'Opção 4' }
+            ]
+          },
+          {
+            id: 'question3',
+            type: 'checkbox',
+            label: 'Título da Pergunta',
+            options: [
+              { value: 'opcao1', label: 'Opção 1' },
+              { value: 'opcao2', label: 'Opção 2' },
+              { value: 'opcao3', label: 'Opção 3' },
+              { value: 'opcao4', label: 'Opção 4' },
+              { value: 'opcao5', label: 'Opção 5' }
+            ]
+          },
+          {
+            id: 'question4',
+            type: 'select',
+            label: 'Título da Pergunta',
+            placeholder: 'Selecione uma opção',
+            required: true,
+            options: [
+              { value: 'opcao1', label: 'Opção 1' },
+              { value: 'opcao2', label: 'Opção 2' },
+              { value: 'opcao3', label: 'Opção 3' },
+              { value: 'opcao4', label: 'Opção 4' }
+            ]
+          },
+          {
+            id: 'question5',
+            type: 'textarea',
+            label: 'Título da Pergunta',
+            placeholder: 'Digite sua resposta detalhada aqui...',
+            numberOfLines: 4,
+            required: true
+          },
+          {
+            id: 'question6',
+            type: 'text',
+            label: 'Título da Pergunta',
+            placeholder: 'Digite sua resposta aqui'
+          },
+          {
+            id: 'question7',
+            type: 'checkbox',
+            label: 'Título da Pergunta',
+            options: [
+              { value: 'opcao1', label: 'Opção 1' },
+              { value: 'opcao2', label: 'Opção 2' },
+              { value: 'opcao3', label: 'Opção 3' }
+            ]
+          },
+          {
+            id: 'question8',
+            type: 'textarea',
+            label: 'Título da Pergunta',
+            placeholder: 'Digite observações adicionais...',
+            numberOfLines: 3
+          }
         ]
-      },
-      {
-        id: 'medications',
-        type: 'checkbox',
-        label: 'Medicamentos em uso',
-        options: [
-          { value: 'aspirina', label: 'Aspirina' },
-          { value: 'paracetamol', label: 'Paracetamol' },
-          { value: 'ibuprofeno', label: 'Ibuprofeno' },
-          { value: 'dipirona', label: 'Dipirona' },
-          { value: 'omeprazol', label: 'Omeprazol' },
-          { value: 'losartana', label: 'Losartana' }
-        ]
-      },
-      {
-        id: 'symptoms1',
-        type: 'textarea',
-        label: 'Sintomas principais',
-        placeholder: 'Descreva os sintomas principais...',
-        numberOfLines: 4
-      },
-      {
-        id: 'symptoms2',
-        type: 'textarea',
-        label: 'Sintomas secundários',
-        placeholder: 'Descreva outros sintomas...',
-        numberOfLines: 4
-      },
-      {
-        id: 'additionalInfo',
-        type: 'textarea',
-        label: 'Informações adicionais',
-        placeholder: 'Outras informações relevantes...',
-        numberOfLines: 4
-      }
-    ]
+      };
+
+      setFormConfig(mockFormConfig);
+      
+      // Inicializar formData com valores vazios baseados nas perguntas
+      const initialFormData: FormData = {};
+      mockFormConfig.questions.forEach(question => {
+        if (question.type === 'checkbox') {
+          initialFormData[question.id] = [];
+        } else {
+          initialFormData[question.id] = '';
+        }
+      });
+      setFormData(initialFormData);
+      
+    } catch (error) {
+      console.error('Erro ao carregar configuração do formulário:', error);
+      Alert.alert('Erro', 'Não foi possível carregar o formulário. Tente novamente.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // Estado do formulário
-  const [formData, setFormData] = useState<FormData>({
-    name: '',
-    bloodType: '',
-    medications: [],
-    symptoms1: '',
-    symptoms2: '',
-    additionalInfo: ''
-  });
+  // Carregar configuração do formulário ao montar o componente
+  useEffect(() => {
+    loadFormConfiguration();
+  }, []);
 
   // Função para atualizar dados do formulário
   const updateFormData = (questionId: string, value: string | string[]) => {
@@ -103,113 +158,204 @@ export default function MedicalForm() {
     }));
   };
 
-  // Função para renderizar cada pergunta
-  const renderQuestion = (question: any) => {
+  // Função específica para renderizar perguntas de texto
+  const renderTextQuestion = (question: Question) => {
+    if (question.type !== 'text') return null;
+    
+    return (
+      <TextQuestion
+        key={question.id}
+        label={question.label}
+        value={formData[question.id] as string || ''}
+        onChangeText={(text) => updateFormData(question.id, text)}
+        placeholder={question.placeholder}
+      />
+    );
+  };
+
+  // Função específica para renderizar perguntas de área de texto
+  const renderTextAreaQuestion = (question: Question) => {
+    if (question.type !== 'textarea') return null;
+    
+    return (
+      <TextQuestion
+        key={question.id}
+        label={question.label}
+        value={formData[question.id] as string || ''}
+        onChangeText={(text) => updateFormData(question.id, text)}
+        placeholder={question.placeholder}
+        multiline={true}
+        numberOfLines={question.numberOfLines}
+      />
+    );
+  };
+
+  // Função específica para renderizar perguntas de seleção única (radio)
+  const renderRadioQuestion = (question: Question) => {
+    if (question.type !== 'radio') return null;
+    
+    return (
+      <RadioQuestion
+        key={question.id}
+        label={question.label}
+        options={question.options}
+        selectedValue={formData[question.id] as string || ''}
+        onSelectionChange={(value) => updateFormData(question.id, value)}
+      />
+    );
+  };
+
+  // Função específica para renderizar perguntas de múltiplas escolhas (checkbox)
+  const renderCheckboxQuestion = (question: Question) => {
+    if (question.type !== 'checkbox') return null;
+    
+    return (
+      <CheckboxQuestion
+        key={question.id}
+        label={question.label}
+        options={question.options}
+        selectedValues={formData[question.id] as string[] || []}
+        onSelectionChange={(values) => updateFormData(question.id, values)}
+      />
+    );
+  };
+
+  // Função específica para renderizar perguntas de lista de opções (select)
+  const renderSelectQuestion = (question: Question) => {
+    if (question.type !== 'select') return null;
+    
+    return (
+      <SelectQuestion
+        key={question.id}
+        label={question.label}
+        options={question.options}
+        selectedValue={formData[question.id] as string || ''}
+        onSelectionChange={(value) => updateFormData(question.id, value)}
+        placeholder={question.placeholder}
+      />
+    );
+  };
+
+  // Função principal para renderizar cada pergunta baseada no tipo
+  const renderQuestion = (question: Question) => {
     switch (question.type) {
       case 'text':
-        return (
-          <TextQuestion
-            key={question.id}
-            label={question.label}
-            value={formData[question.id] as string || ''}
-            onChangeText={(text) => updateFormData(question.id, text)}
-            placeholder={question.placeholder}
-          />
-        );
-      
+        return renderTextQuestion(question);
       case 'textarea':
-        return (
-          <TextQuestion
-            key={question.id}
-            label={question.label}
-            value={formData[question.id] as string || ''}
-            onChangeText={(text) => updateFormData(question.id, text)}
-            placeholder={question.placeholder}
-            multiline={true}
-            numberOfLines={question.numberOfLines}
-          />
-        );
-      
+        return renderTextAreaQuestion(question);
       case 'radio':
-        return (
-          <RadioQuestion
-            key={question.id}
-            label={question.label}
-            options={question.options}
-            selectedValue={formData[question.id] as string || ''}
-            onSelectionChange={(value) => updateFormData(question.id, value)}
-          />
-        );
-      
+        return renderRadioQuestion(question);
       case 'checkbox':
-        return (
-          <CheckboxQuestion
-            key={question.id}
-            label={question.label}
-            options={question.options}
-            selectedValues={formData[question.id] as string[] || []}
-            onSelectionChange={(values) => updateFormData(question.id, values)}
-          />
-        );
-      
+        return renderCheckboxQuestion(question);
       case 'select':
-        return (
-          <SelectQuestion
-            key={question.id}
-            label={question.label}
-            options={question.options}
-            selectedValue={formData[question.id] as string || ''}
-            onSelectionChange={(value) => updateFormData(question.id, value)}
-            placeholder={question.placeholder}
-          />
-        );
-      
+        return renderSelectQuestion(question);
       default:
+        console.warn(`Tipo de pergunta não suportado: ${question.type}`);
         return null;
     }
   };
 
-  const handleSave = () => {
-    // Validação básica
-    if (!formData.name || typeof formData.name !== 'string' || !formData.name.trim()) {
-      Alert.alert('Erro', 'Por favor, informe o nome.');
-      return;
+  // Função para validar campos obrigatórios
+  const validateRequiredFields = (): boolean => {
+    const requiredQuestions = formConfig.questions.filter(q => q.required);
+    
+    for (const question of requiredQuestions) {
+      const value = formData[question.id];
+      
+      if (question.type === 'checkbox') {
+        if (!Array.isArray(value) || value.length === 0) {
+          Alert.alert('Campo obrigatório', `Por favor, selecione pelo menos uma opção para: ${question.label}`);
+          return false;
+        }
+      } else {
+        if (!value || (typeof value === 'string' && !value.trim())) {
+          Alert.alert('Campo obrigatório', `Por favor, preencha o campo: ${question.label}`);
+          return false;
+        }
+      }
     }
     
-    if (!formData.bloodType) {
-      Alert.alert('Erro', 'Por favor, selecione o tipo sanguíneo.');
+    return true;
+  };
+
+  // Função para salvar o formulário
+  const handleSave = async () => {
+    if (!validateRequiredFields()) {
       return;
     }
 
-    Alert.alert(
-      'Sucesso',
-      'Formulário salvo com sucesso!',
-      [
-        {
-          text: 'OK',
-          onPress: () => {
-            // Limpar formulário
-            setFormData({
-              name: '',
-              bloodType: '',
-              medications: [],
-              symptoms1: '',
-              symptoms2: '',
-              additionalInfo: ''
-            });
+    try {
+      // Aqui será feita a chamada para o backend para salvar os dados
+      console.log('Dados do formulário a serem salvos:', formData);
+      
+      // Simulando salvamento no backend
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      Alert.alert(
+        'Sucesso',
+        'Formulário salvo com sucesso!',
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              // Resetar formulário após salvar
+              const resetFormData: FormData = {};
+              formConfig.questions.forEach(question => {
+                if (question.type === 'checkbox') {
+                  resetFormData[question.id] = [];
+                } else {
+                  resetFormData[question.id] = '';
+                }
+              });
+              setFormData(resetFormData);
+            }
           }
-        }
+        ]
+      );
+    } catch (error) {
+      console.error('Erro ao salvar formulário:', error);
+      Alert.alert('Erro', 'Não foi possível salvar o formulário. Tente novamente.');
+    }
+  };
+
+  const handleBack = () => {
+    Alert.alert(
+      'Voltar',
+      'Deseja realmente voltar? Os dados não salvos serão perdidos.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Voltar', onPress: () => console.log('Navegação para tela anterior') }
       ]
     );
   };
 
-  const handleBack = () => {
-    Alert.alert('Voltar', 'Funcionalidade de voltar implementada');
+  const handleFooterNavigation = (action: string) => {
+    console.log(`Navegação para: ${action}`);
+    // Aqui será implementada a navegação real entre telas
   };
 
-  const handleFooterNavigation = (action: string) => {
-    Alert.alert('Navegação', `Ação: ${action}`);
-  };
+  // Renderização de loading
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <StatusBar style="light" />
+        <View style={styles.header}>
+          <View style={styles.headerContent}>
+            <View style={styles.avatarContainer}>
+              <MaterialIcons name="person" size={32} color="#ffffff" />
+            </View>
+            <View style={styles.headerText}>
+              <Text style={styles.welcomeText}>Bem-vindo</Text>
+            <Text style={styles.roleText}>Nome do Usuário</Text>
+            </View>
+          </View>
+        </View>
+        <View style={[styles.content, { justifyContent: 'center', alignItems: 'center' }]}>
+          <Text style={{ fontSize: 16, color: '#6b7280' }}>Carregando formulário...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -223,7 +369,7 @@ export default function MedicalForm() {
           </View>
           <View style={styles.headerText}>
             <Text style={styles.welcomeText}>Bem-vindo</Text>
-            <Text style={styles.roleText}>Paciente</Text>
+            <Text style={styles.roleText}>Nome do Usuário</Text>
           </View>
         </View>
       </View>
@@ -238,7 +384,7 @@ export default function MedicalForm() {
 
           {/* Buttons */}
           <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-            <Text style={styles.saveButtonText}>Salvar</Text>
+            <Text style={styles.saveButtonText}>Salvar Formulário</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
@@ -255,6 +401,14 @@ export default function MedicalForm() {
         >
           <MaterialIcons name="home" size={24} color="#6b7280" />
           <Text style={styles.footerButtonText}>Início</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={styles.footerButton}
+          onPress={() => handleFooterNavigation('forms')}
+        >
+          <MaterialIcons name="assignment" size={24} color="#6b7280" />
+          <Text style={styles.footerButtonText}>Formulários</Text>
         </TouchableOpacity>
         
         <TouchableOpacity 
