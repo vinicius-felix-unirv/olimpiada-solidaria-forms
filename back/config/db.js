@@ -1,81 +1,78 @@
-// Este arquivo configura a conexão com o banco de dados PostgreSQL.
-// Como você ainda não tem acesso ao banco, a conexão real está comentada.
-// Para testar agora, usaremos um mock in-memory. Quando tiver acesso ao DB,
-// descomente a parte do 'pg' e configure as credenciais.
-
-// Importa o módulo pg para conexão com PostgreSQL
-// const { Pool } = require('pg');
-
-// Configuração da pool de conexões (descomente quando tiver o DB)
-// const pool = new Pool({
-//   user: 'seu_usuario',      // Substitua pelo usuário do DB
-//   host: 'localhost',        // Ou o host do Docker
-//   database: 'nome_do_banco', // Nome do banco de dados
-//   password: 'sua_senha',    // Senha do DB
-//   port: 5432,               // Porta padrão do PostgreSQL
-// });
-
-// Exporta a pool para uso em outros arquivos
-// module.exports = pool;
-
-// Para teste in-memory (sem DB real), usamos um array simples como mock
-let questoesMock = []; // Array para simular a tabela de questões
-let idCounter = 1;     // Contador para simular autoincremento de ID
+let questoesMock = [];
+let alternativasMock = [];
+let questaoIdCounter = 1;
+let alternativaIdCounter = 1;
 
 module.exports = {
-  // Função mock para query (simula execução de SQL)
+  // Função mock que simula a execução de queries SQL
   query: (text, params) => {
-    // Simula INSERT INTO questao (descricao, tipo, formulario_id) VALUES (...)
+    console.log('Executando query mock:', text, params); // Log para ajudar a depurar
+
+    // --- Lógica para a tabela QUESTAO ---
+
+    // Simula: INSERT INTO questao (descricao, tipo, formulario_id) VALUES ($1, $2, $3)
     if (text.startsWith('INSERT INTO questao')) {
       const [descricao, tipo, formulario_id] = params;
-      const novaQuestao = {
-        id: idCounter++,
-        descricao,
-        tipo,
-        formulario_id
-      };
+      const novaQuestao = { id: questaoIdCounter++, descricao, tipo, formulario_id };
       questoesMock.push(novaQuestao);
       return Promise.resolve({ rows: [novaQuestao] });
     }
-    // Simula UPDATE questao SET ... WHERE id = ...
-    else if (text.startsWith('UPDATE questao')) {
+
+    // Simula: UPDATE questao SET ... WHERE id = $4
+    if (text.startsWith('UPDATE questao')) {
       const [descricao, tipo, formulario_id, id] = params;
-      const questaoIndex = questoesMock.findIndex(q => q.id === id);
-      if (questaoIndex === -1) {
-        return Promise.reject(new Error('Questão não encontrada.'));
+      const index = questoesMock.findIndex(q => q.id === id);
+      if (index === -1) {
+        return Promise.reject(new Error('Questão não encontrada para atualização.'));
       }
-      const questaoAtualizada = {
-        ...questoesMock[questaoIndex],
-        descricao,
-        tipo,
-        formulario_id
-      };
-      questoesMock[questaoIndex] = questaoAtualizada;
-      return Promise.resolve({ rows: [questaoAtualizada] });
+      questoesMock[index] = { ...questoesMock[index], descricao, tipo, formulario_id };
+      return Promise.resolve({ rows: [questoesMock[index]] });
     }
-    // Simula DELETE FROM questao WHERE id = ...
-    else if (text.startsWith('DELETE FROM questao')) {
+
+    // Simula: DELETE FROM questao WHERE id = $1
+    if (text.startsWith('DELETE FROM questao')) {
       const [id] = params;
-      const questaoIndex = questoesMock.findIndex(q => q.id === id);
-      if (questaoIndex === -1) {
-        return Promise.reject(new Error('Questão não encontrada.'));
+      const index = questoesMock.findIndex(q => q.id === id);
+      if (index === -1) {
+        return Promise.reject(new Error('Questão não encontrada para remoção.'));
       }
-      const questaoRemovida = questoesMock.splice(questaoIndex, 1)[0];
-      return Promise.resolve({ rows: [questaoRemovida] });
+      const [removida] = questoesMock.splice(index, 1);
+      return Promise.resolve({ rows: [removida] });
     }
-    // Simula SELECT * FROM questao WHERE id = ...
-    else if (text.startsWith('SELECT * FROM questao WHERE id')) {
+
+    // Simula: SELECT * FROM questao WHERE id = $1
+    if (text.startsWith('SELECT * FROM questao WHERE id')) {
       const [id] = params;
       const questao = questoesMock.find(q => q.id === id);
-      if (!questao) {
-        return Promise.reject(new Error('Questão não encontrada.'));
-      }
-      return Promise.resolve({ rows: [questao] });
+      return Promise.resolve({ rows: questao ? [questao] : [] });
     }
-    // Simula SELECT para outras verificações, se necessário
-    else if (text.startsWith('SELECT')) {
-      return Promise.resolve({ rows: questoesMock });
+
+    // --- Lógica para a tabela ALTERNATIVA ---
+
+    // Simula: INSERT INTO alternativa (descricao, questao_id) VALUES ($1, $2)
+    if (text.startsWith('INSERT INTO alternativa')) {
+      const [descricao, questao_id] = params;
+      const novaAlternativa = { id: alternativaIdCounter++, descricao, questao_id };
+      alternativasMock.push(novaAlternativa);
+      return Promise.resolve({ rows: [novaAlternativa] });
     }
-    return Promise.reject(new Error('Query não suportada no mock'));
+
+    // Simula: SELECT * FROM alternativa WHERE questao_id = $1
+    if (text.startsWith('SELECT * FROM alternativa WHERE questao_id')) {
+      const [questao_id] = params;
+      const resultado = alternativasMock.filter(a => a.questao_id === questao_id);
+      return Promise.resolve({ rows: resultado });
+    }
+
+    // Simula: DELETE FROM alternativa WHERE questao_id = $1
+    if (text.startsWith('DELETE FROM alternativa WHERE questao_id')) {
+      const [questao_id] = params;
+      const removidas = alternativasMock.filter(a => a.questao_id === questao_id);
+      alternativasMock = alternativasMock.filter(a => a.questao_id !== questao_id);
+      return Promise.resolve({ rows: removidas }); // Retorna as que foram removidas, para consistência
+    }
+
+    // Se a query não for reconhecida pelo mock
+    return Promise.reject(new Error('Query não suportada no mock: ' + text));
   }
 };

@@ -1,6 +1,3 @@
-// Este arquivo define as rotas para as questões.
-// Usa Express Router para modularidade.
-
 const express = require('express');
 const router = express.Router();
 const questaoController = require('../controllers/questaoController');
@@ -13,10 +10,5 @@ router.put('/:id', questaoController.editarQuestao);
 
 // Rota para remover uma questão (DELETE /questoes/:id)
 router.delete('/:id', questaoController.removerQuestao);
-
-
-// Espaço para rotas de alternativas para o João Lázaro adicionar.
-
-// router.post('/:id_questao/alternativas', questaoController.adicionarAlternativa);
 
 module.exports = router;
