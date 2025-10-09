@@ -1,0 +1,83 @@
+### Arquivo de testes da API Healthcare Survey
+### Use a extensão REST Client do VS Code para executar esses testes
+
+@baseUrl = http://localhost:3000
+
+### 1. Health Check
+GET {{baseUrl}}/api/health
+
+### 2. Listar todos os formulários
+GET {{baseUrl}}/api/formularios
+Content-Type: application/json
+
+### 3. Criar novo formulário
+POST {{baseUrl}}/api/formularios
+Content-Type: application/json
+
+{
+  "titulo": "Questionário de Saúde Mental",
+  "descricao": "Avaliação do estado psicológico dos pacientes",
+  "instituicao": "Clínica Bem-Estar"
+}
+
+### 4. Buscar formulário por ID (substitua 1 pelo ID real)
+GET {{baseUrl}}/api/formularios/1
+Content-Type: application/json
+
+### 5. Atualizar formulário
+PUT {{baseUrl}}/api/formularios/1
+Content-Type: application/json
+
+{
+  "titulo": "Avaliação Nutricional Atualizada",
+  "descricao": "Questionário completo para avaliar hábitos alimentares",
+  "instituicao": "Hospital São Paulo - Nutrição"
+}
+
+### 6. Adicionar questão de múltipla escolha
+POST {{baseUrl}}/api/formularios/1/questoes
+Content-Type: application/json
+
+{
+  "texto": "Com que frequência você consome frutas?",
+  "tipo": "multipla_escolha",
+  "obrigatoria": true,
+  "ordem": 2,
+  "alternativas": [
+    {
+      "texto": "Diariamente",
+      "ordem": 1
+    },
+    {
+      "texto": "Algumas vezes por semana",
+      "ordem": 2
+    },
+    {
+      "texto": "Raramente",
+      "ordem": 3
+    },
+    {
+      "texto": "Nunca",
+      "ordem": 4
+    }
+  ]
+}
+
+### 7. Adicionar questão de texto
+POST {{baseUrl}}/api/formularios/1/questoes
+Content-Type: application/json
+
+{
+  "texto": "Descreva seus hábitos alimentares atuais:",
+  "tipo": "texto",
+  "obrigatoria": false,
+  "ordem": 3
+}
+
+### 8. Listar questões de um formulário
+GET {{baseUrl}}/api/formularios/1/questoes
+Content-Type: application/json
+
+### 9. Desativar formulário
+DELETE {{baseUrl}}/api/formularios/1
+Content-Type: application/json
