@@ -1,14 +1,17 @@
-const jwt = require('jsonwebtoken');
+// authMiddleware.ts
 
-const authMiddleware = (req, res, next) => {
+import type { Response, NextFunction } from 'express';
+import * as jwt from 'jsonwebtoken';
+import type { AuthRequest, AuthPayload } from '../types/Usuario.js';
+
+const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers['authorization'];
 
   if (!authHeader) {
     return res.status(401).json({ message: 'Token não fornecido.' });
   }
 
-  const parts = authHeader.split(' ');
-
+const parts = authHeader.split(' ') as [string, string]; 
   if (parts.length !== 2) {
     return res.status(401).json({ message: 'Erro no formato do token.' });
   }
@@ -20,9 +23,8 @@ const authMiddleware = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as AuthPayload;
 
-    
     req.user = decoded;
 
     return next();
@@ -31,4 +33,4 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
-module.exports = authMiddleware;
+export default authMiddleware;
